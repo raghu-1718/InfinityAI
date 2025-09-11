@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "infinityai-pro"
+version = "0.1.0"
+description = "InfinityAI.Pro backend with FastAPI and trading integrations"
+authors = ["Raghu <your-email@example.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+fastapi = "^0.110.0"
+uvicorn = "^0.29.0"
+pandas = "^2.2.0"
+requests = "^2.31.0"
+python-dotenv = "^1.0.0"
+websockets = "^12.0"
+# Add your Dhan SDK and Telegram Bot API packages here
+
+[tool.poetry.dev-dependencies]
+pytest = "^8.0.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

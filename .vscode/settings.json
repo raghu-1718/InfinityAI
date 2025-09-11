@@ -1,0 +1,5 @@
+{
+    "chat.mcp.autostart": "newAndOutdated",
+    "chat.agent.maxRequests": 2500,
+    "python.defaultInterpreterPath": "C:/Users/Raghu/AppData/Local/pypoetry/Cache/virtualenvs/infinityai-pro-NZTg59Fu-py3.12/Scripts/python.exe"
+}
