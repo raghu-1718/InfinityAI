@@ -1,0 +1,15 @@
+{
+  "version": 2,
+  "ignoreCommand": "echo 'Force new build' && exit 1",
+  "functions": {
+    "api/**/*.py": {
+      "runtime": "@vercel/python"
+    }
+  },
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "api/main.py"
+    }
+  ]
+}
