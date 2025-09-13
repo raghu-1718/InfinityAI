@@ -1,14 +1,22 @@
 
-import json
-import os
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from core.models import User, Base
 
-USER_STORE_PATH = os.getenv("USER_STORE_PATH", "config/user_store.json")
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///infinityai.db")
+engine = create_engine(DATABASE_URL)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base.metadata.create_all(bind=engine)
 
 def get_user_credentials(user_id):
-    try:
-        with open(USER_STORE_PATH, "r") as f:
-            users = json.load(f)
-        return users.get(user_id)
-    except Exception as e:
-        print(f"User Loader error: {e}")
-        return None
+    session = SessionLocal()
+    user = session.query(User).filter_by(id=user_id).first()
+    session.close()
+    if user:
+        return {
+            "username": user.username,
+            "email": user.email,
+            "hashed_password": user.hashed_password,
+            "role": user.role
+        }
+    return None

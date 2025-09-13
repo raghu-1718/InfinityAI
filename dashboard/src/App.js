@@ -2,6 +2,10 @@ import logo from './logo.svg';
 import './App.css';
 
 function App() {
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    window.location.reload();
+  };
   return (
     <div className="App">
       <header className="App-header">
@@ -17,6 +21,7 @@ function App() {
         >
           Learn React
         </a>
+        <button onClick={handleLogout} style={{marginTop: '20px'}}>Logout</button>
       </header>
     </div>
   );

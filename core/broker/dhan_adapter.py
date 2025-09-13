@@ -2,6 +2,7 @@
 import asyncio
 from dhanhq import dhanhq, DhanContext  # type: ignore
 import logging
+from core.broker.retry import call_broker_api
 
 logger = logging.getLogger(__name__)
 
@@ -28,6 +29,8 @@ class DhanAdapter:
 			logger.error(f"Error fetching profile: {e}")
 			return None
 
+		# Example usage:
+		# response = call_broker_api(broker_url, payload)
 	def execute_trade(self, strategy: Dict[str, Any], creds: Dict[str, str]) -> Dict[str, Any]:
 		if strategy["action"] == "HOLD":
 			return {"status": "skipped", "reason": "HOLD action"}
