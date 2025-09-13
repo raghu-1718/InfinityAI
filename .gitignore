@@ -1,1 +1,86 @@
+# Node.js
+node_modules/
+build/
+dist/
+
+# Python
+.venv/
+__pycache__/
+.pytest_cache/
+.mypy_cache/
+.coverage
+.egg-info/
+*.pyc
+*.pyo
+*.sqlite
+*.db
+*.pkl
+*.h5
+*.pt
+*.ckpt
+
+# VSCode/IDE
+.vscode/
+.idea/
+.DS_Store
+
+# Logs, temp, backups
+*.log
+*.tmp
+*.bak
+*.swp
+*.old
+*.orig
+*.test
+*.out
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Large files
+*.tar
+*.zip
+*.gz
+*.rar
+*.7z
+*.exe
+*.dll
+*.so
+*.bin
+
+# Media
+*.pdf
+*.mp4
+*.mp3
+*.jpg
+*.png
+*.gif
+*.svg
+*.ico
+*.webp
+*.ttf
+*.woff
+*.eot
+
+# Office
+*.xls
+*.xlsx
+*.doc
+*.docx
+*.ppt
+*.pptx
+
+# Data
+*.csv
+*.json
+*.yaml
+*.yml
+*.parquet
+*.avro
+*.orc
+*.arrow
+
+# LFS
+.lfs/
+.large/
 .vercel
