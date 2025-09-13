@@ -4,9 +4,27 @@ class InfinityAIPlugin:
     def run(self, *args, **kwargs):
         raise NotImplementedError("Plugin must implement run method")
 
+def discover_plugins(plugin_folder):
+    import os
+    plugins = []
+    for fname in os.listdir(plugin_folder):
+        if fname.endswith(".py") and fname != "__init__.py":
+            plugins.append(fname[:-3])
+    return plugins
+
+def run_all_plugins(plugin_folder, base_class_name="InfinityAIPlugin"):
+    plugins = discover_plugins(plugin_folder)
+    results = {}
+    for plugin_name in plugins:
+        module_path = f"core.extensibility_plugins.{plugin_name}"
+        plugin_class = load_plugin(module_path, "SamplePlugin")
+        if issubclass(plugin_class.__class__, InfinityAIPlugin):
+            results[plugin_name] = plugin_class.run()
+    return results
+
 # Example plugin
 class MyStrategyPlugin(InfinityAIPlugin):
-    def run(self, market_data):
+    def run(self, market_data=None):
         # Custom strategy logic
         return "Trade signal"
 
