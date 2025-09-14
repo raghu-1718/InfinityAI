@@ -9,11 +9,15 @@ function Login({ onLogin }) {
     e.preventDefault();
     setError('');
     try {
+      const params = new URLSearchParams();
+      params.append('username', username);
+      params.append('password', password);
+
       // Replace with your backend API URL
-      const response = await fetch('http://localhost:8000/login', {
+      const response = await fetch(`${process.env.REACT_APP_API_URL}/login`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+        body: params.toString(),
       });
       const data = await response.json();
       if (response.ok && data.access_token) {

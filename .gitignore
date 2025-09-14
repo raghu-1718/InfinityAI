@@ -1,5 +1,6 @@
 # Node.js
 node_modules/
+node_modules/electron/dist/electron.exe
 build/
 dist/
 
@@ -84,3 +85,11 @@ __pycache__/
 .lfs/
 .large/
 .vercel
+node_modules
+node_modules
+node_modules
+node_modules
+node_modules
+node_modules
+node_modules
+node_modules
