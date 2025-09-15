@@ -3,13 +3,17 @@ name = "infinityai-pro"
 version = "0.1.0"
 description = "InfinityAI.Pro backend with FastAPI and trading integrations"
 authors = ["Raghu <your-email@example.com>"]
+<<<<<<< HEAD
 readme = "README.md"
 repository = "https://github.com/yourusername/infinityai-pro"
 license = "MIT"
+=======
+>>>>>>> 7ee6d5f999d9bc01dbdc4b984f791a0af547bcda
 
 [tool.poetry.dependencies]
 python = "^3.9"
 fastapi = "^0.110.0"
+<<<<<<< HEAD
 uvicorn = {extras = ["standard"], version = "^0.29.0"}
 pandas = "^2.2.0"
 requests = "^2.31.0"
@@ -31,10 +35,22 @@ black = "^24.1.0"
 isort = "^5.13.0"
 flake8 = "^7.0.0"
 mypy = "^1.8.0"
+=======
+uvicorn = "^0.29.0"
+pandas = "^2.2.0"
+requests = "^2.31.0"
+python-dotenv = "^1.0.0"
+websockets = "^12.0"
+# Add your Dhan SDK and Telegram Bot API packages here
+
+[tool.poetry.dev-dependencies]
+pytest = "^8.0.0"
+>>>>>>> 7ee6d5f999d9bc01dbdc4b984f791a0af547bcda
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+<<<<<<< HEAD
 
 [tool.black]
 line-length = 88
@@ -48,3 +64,5 @@ multi_line_output = 3
 python_version = "3.9"
 disallow_untyped_defs = true
 disallow_incomplete_defs = true
+=======
+>>>>>>> 7ee6d5f999d9bc01dbdc4b984f791a0af547bcda

@@ -1,0 +1,11 @@
+# ER Diagram (textual)
+#
+# User (1) --- (M) TradeLog
+# User (1) --- (M) AuditTrail
+# User (1) --- (M) Analytics
+#
+# Tables:
+# - users: id, username, email, hashed_password, role, created_at
+# - trade_logs: id, user_id, symbol, action, quantity, price, timestamp
+# - audit_trails: id, user_id, action, details, timestamp
+# - analytics: id, user_id, metric, value, timestamp

@@ -1,2 +1,3 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+dashboard/node_modules/electron/dist/electron.exe !text !filter !merge !diff
