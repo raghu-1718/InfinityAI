@@ -5,3 +5,5 @@ dhanhq
 SQLAlchemy
 mysql-connector-python>=8.0.26
 opencensus-ext-azure>=1.1.9  # For Azure Application Insights
+gunicorn
+Python-jose

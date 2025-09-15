@@ -39,6 +39,7 @@ class DatabaseManager:
                     'database': os.environ.get('DB_NAME', 'infinityai'),
                     'ssl_ca': os.environ.get('DB_SSL_CA', ''),
                     'ssl_verify_cert': os.environ.get('DB_SSL_VERIFY', 'true').lower() == 'true',
+                    'ssl_disabled': True,  # Disable SSL to avoid certificate issues in container
                 }
                 
                 # Log sanitized connection info (no password)

@@ -1,26 +1,25 @@
-# Use an official Python runtime as a parent image
-FROM python:3.12-slim
+# For more information, please refer to https://aka.ms/vscode-docker-python
+FROM python:3-slim
 
-# Set the working directory inside the container
-WORKDIR /app
-
-# Set the PYTHONPATH environment variable so Python can find your modules
-ENV PYTHONPATH=/app
-
-# Copy the requirements file into the container at /app
-COPY requirements.txt .
-
-# Install any needed packages specified in requirements.txt
-# We use --no-cache-dir to keep the image size small
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy the rest of your application's code into the container at /app
-# This includes the 'engine', 'core', and 'shared' directories
-COPY . .
-
-# Expose port 8000 to allow communication to the uvicorn server
 EXPOSE 8000
 
-# Define the command to run your app using uvicorn
-# This will be executed when the container starts
-CMD ["uvicorn", "engine.app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Keeps Python from generating .pyc files in the container
+ENV PYTHONDONTWRITEBYTECODE=1
+
+# Turns off buffering for easier container logging
+ENV PYTHONUNBUFFERED=1
+
+# Install pip requirements
+COPY requirements.txt .
+RUN python -m pip install -r requirements.txt
+
+WORKDIR /app
+COPY . /app
+
+# Creates a non-root user with an explicit UID and adds permission to access the /app folder
+# For more info, please refer to https://aka.ms/vscode-docker-python-configure-containers
+RUN adduser -u 5678 --disabled-password --gecos "" appuser && chown -R appuser /app
+USER appuser
+
+# During debugging, this entry point will be overridden. For more information, please refer to https://aka.ms/vscode-docker-python-debug
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "-k", "uvicorn.workers.UvicornWorker", "api.app.main:app"]
