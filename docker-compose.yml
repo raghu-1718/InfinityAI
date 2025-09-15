@@ -1,0 +1,55 @@
+services:
+  db:
+    image: mariadb:10.6
+    container_name: infinityai-db-dev
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${DB_NAME}
+      MYSQL_USER: ${DB_USER}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      # Expose port 3306 to connect with a local DB client like DBeaver or HeidiSQL
+      - "3306:3306"
+
+  backend:
+    build:
+      context: .
+      dockerfile: engine/Dockerfile
+    container_name: infinityai-backend
+    ports:
+      # Expose port 8000 on the host and map it to port 8000 in the container
+      - "8000:8000"
+    volumes:
+      - ./engine:/app/engine
+      - ./shared:/app/shared
+      - ./core:/app/core
+    environment:
+      - DB_HOST=db
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_NAME=${DB_NAME}
+      - DB_PORT=3306
+      - DHAN_CLIENT_ID=${DHAN_CLIENT_ID}
+      - DHAN_ACCESS_TOKEN=${DHAN_ACCESS_TOKEN}
+      - USER_ID=raghu_test_1
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./dashboard
+      dockerfile: Dockerfile
+    container_name: infinityai-frontend
+    volumes:
+      - ./dashboard:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+volumes:
+  db_data:

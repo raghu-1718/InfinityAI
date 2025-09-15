@@ -1,0 +1,24 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# VS Code
+.vscode/
+
+# Python virtualenv and cache
+.venv
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+
+# Frontend
+dashboard/
+node_modules/
+
+# Logs and local files
+logs/
+*.log
+.env
+*.ps1

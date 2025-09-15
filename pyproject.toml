@@ -3,20 +3,48 @@ name = "infinityai-pro"
 version = "0.1.0"
 description = "InfinityAI.Pro backend with FastAPI and trading integrations"
 authors = ["Raghu <your-email@example.com>"]
+readme = "README.md"
+repository = "https://github.com/yourusername/infinityai-pro"
+license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.9"
 fastapi = "^0.110.0"
-uvicorn = "^0.29.0"
+uvicorn = {extras = ["standard"], version = "^0.29.0"}
 pandas = "^2.2.0"
 requests = "^2.31.0"
 python-dotenv = "^1.0.0"
-websockets = "^12.0"
-# Add your Dhan SDK and Telegram Bot API packages here
+websockets = "^15.0.1"
+sqlalchemy = "^2.0.43"
+mysql-connector-python = "^9.4.0"
+dhanhq = "^2.0.2"
+opencensus-ext-azure = "^1.1.9"
+azure-identity = "^1.15.0"
+azure-keyvault-secrets = "^4.7.0"
+azure-storage-blob = "^12.19.0"
+typing-extensions = "^4.9.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^8.0.0"
+pytest-cov = "^4.1.0"
+black = "^24.1.0"
+isort = "^5.13.0"
+flake8 = "^7.0.0"
+mypy = "^1.8.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.black]
+line-length = 88
+target-version = ["py39", "py310", "py311", "py312"]
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+
+[tool.mypy]
+python_version = "3.9"
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
