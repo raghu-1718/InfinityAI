@@ -6,6 +6,7 @@ from mysql.connector import Error
 from mysql.connector.pooling import MySQLConnectionPool
 from typing import Dict, Any, Optional, List, Tuple
 from contextlib import contextmanager
+import sqlite3
 
 # Setup logging
 logger = logging.getLogger(__name__)
@@ -17,6 +18,7 @@ class DatabaseManager:
     """
     _instance = None
     _pool = None
+    _is_sqlite = False
     
     def __new__(cls):
         if cls._instance is None:
@@ -26,6 +28,12 @@ class DatabaseManager:
     
     def _initialize_pool(self, pool_size: int = 5):
         """Initialize the connection pool with retry logic."""
+        if os.getenv("TESTING") == "1":
+            self._is_sqlite = True
+            self._sqlite_conn = sqlite3.connect("test.db", check_same_thread=False)
+            logger.info("Using SQLite for testing")
+            return
+        
         max_retries = 5
         retry_delay = 5  # seconds
         
@@ -75,6 +83,11 @@ class DatabaseManager:
     def test_connection(self) -> bool:
         """Test database connectivity."""
         try:
+            if self._is_sqlite:
+                cursor = self._sqlite_conn.cursor()
+                cursor.execute("SELECT 1")
+                cursor.fetchone()
+                return True
             with self.get_connection() as conn:
                 cursor = conn.cursor()
                 cursor.execute("SELECT 1")
@@ -86,6 +99,9 @@ class DatabaseManager:
     @contextmanager
     def get_connection(self):
         """Get a connection from the pool with context management."""
+        if self._is_sqlite:
+            yield self._sqlite_conn
+            return
         conn = None
         try:
             conn = self._pool.get_connection()
@@ -99,6 +115,12 @@ class DatabaseManager:
     
     def execute_query(self, query: str, params: Tuple = None) -> List[Dict[str, Any]]:
         """Execute a query and return results as a list of dictionaries."""
+        if self._is_sqlite:
+            cursor = self._sqlite_conn.cursor()
+            cursor.execute(query, params or ())
+            columns = [desc[0] for desc in cursor.description] if cursor.description else []
+            rows = cursor.fetchall()
+            return [dict(zip(columns, row)) for row in rows]
         with self.get_connection() as conn:
             cursor = conn.cursor(dictionary=True)
             cursor.execute(query, params or ())
@@ -106,6 +128,11 @@ class DatabaseManager:
     
     def execute_update(self, query: str, params: Tuple = None) -> int:
         """Execute an update query and return the number of affected rows."""
+        if self._is_sqlite:
+            cursor = self._sqlite_conn.cursor()
+            cursor.execute(query, params or ())
+            self._sqlite_conn.commit()
+            return cursor.rowcount
         with self.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(query, params or ())

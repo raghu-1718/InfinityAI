@@ -10,7 +10,7 @@ repository = "https://github.com/yourusername/infinityai-pro"
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = ">=3.9,<3.13"
+python = ">=3.10,<3.13"
 fastapi = "^0.110.0"
 uvicorn = {extras = ["standard"], version = "^0.29.0"}
 pandas = "^2.2.0"
@@ -27,11 +27,14 @@ azure-storage-blob = "^12.19.0"
 typing-extensions = "^4.9.0"
 python-jose = "^3.3.0"
 passlib = {extras = ["bcrypt"], version = "^1.7.4"}
-pydantic = "^1.10.13"
+pydantic = "^2.0.0"
 pymysql = "^1.1.2"
 httpx = "^0.28.1"
 python-multipart = "^0.0.20"
 alembic = "^1.16.5"
+evidently = "0.4.31"
+mlflow = "^3.4.0"
+scikit-learn = "^1.7.2"
 
  [tool.poetry.dev-dependencies]
 pytest = "^8.0.0"

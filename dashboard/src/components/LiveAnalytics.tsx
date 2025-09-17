@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import io from 'socket.io-client';
+import io, { type Socket } from 'socket.io-client';
 import { Typography } from '@mui/material';
 
-const socket = io('https://www.infinityai.pro', {
+const socket: Socket = io('https://www.infinityai.pro', {
   path: '/ws/socket.io',
-  transports: ['websocket'],
-  withCredentials: true
+  transports: ['websocket']
 });
 
 const LiveAnalytics = () => {

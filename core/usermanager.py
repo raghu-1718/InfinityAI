@@ -24,6 +24,22 @@ def get_user_credentials(user_id):
             "email": user.email,
             "hashed_password": user.hashed_password,
             "role": user.role,
+            # Optional fields may not exist on dummy objects in tests
+            "dhan_client_id": getattr(user, "dhan_client_id", None),
+            "dhan_access_token": getattr(user, "dhan_access_token", None)
+        }
+    return None
+
+def get_user_by_username(username):
+    session = SessionLocal()
+    user = session.query(User).filter_by(username=username).first()
+    session.close()
+    if user:
+        return {
+            "username": user.username,
+            "email": user.email,
+            "hashed_password": user.hashed_password,
+            "role": user.role,
             "dhan_client_id": user.dhan_client_id,
             "dhan_access_token": user.dhan_access_token
         }
