@@ -15,11 +15,11 @@ async def dhan_webhook_handler(request: Request):
     """
     try:
         payload = await request.json()
-        
+
         # Here you would add your logic to process the trade alert from Dhan.
         # For now, we will just print it to the console.
         print(f"Received Dhan webhook payload: {payload}")
-        
+
         return {"status": "success", "message": "Webhook received"}
 
     except json.JSONDecodeError:

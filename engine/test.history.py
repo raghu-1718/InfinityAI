@@ -19,7 +19,7 @@ def test_index_history():
     A focused test to fetch historical data for a single index.
     """
     USER_ID = 'raghu_test_1'
-    
+
     # --- Parameters to Test ---
     SECURITY_ID = '13'
     EXCHANGE_SEGMENT = 'NSE_IDX'
@@ -35,7 +35,7 @@ def test_index_history():
             return
 
         dhan = dhanhq(credentials['client_id'], credentials['access_token'])
-        
+
         to_date = str(date.today() - timedelta(days=1))
         from_date = str(date.today() - timedelta(days=5))
 

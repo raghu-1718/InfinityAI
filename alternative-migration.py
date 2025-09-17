@@ -18,34 +18,34 @@ def migrate_data():
     """
     Migrate data from SingleStore to Azure MySQL using Python
     """
-    
+
     # SingleStore connection (from your original setup)
     singlestore_url = "mysql+pymysql://raghu-f2476:YOUR_PASSWORD@svc-3482219c-a389-4079-b18b-d50662524e8a-shared-dml.aws-virginia-6.svc.singlestore.com:3333/db_raghu_d5f23"
-    
+
     # Azure MySQL connection (from deployed infrastructure)
     from urllib.parse import quote_plus
     password = quote_plus("InfinityAI@MySQL2024!SecurePass#123")
     azure_mysql_url = f"mysql+pymysql://infinityai_admin:{password}@infinityai-mysql-west-eur.mysql.database.azure.com:3306/infinityai"
-    
+
     try:
         # Test Azure MySQL connection first
         logger.info("🔗 Testing Azure MySQL connection...")
         azure_engine = create_engine(azure_mysql_url, echo=False)
-        
+
         with azure_engine.connect() as conn:
             result = conn.execute(text("SELECT 1 as test"))
             logger.info("✅ Azure MySQL connection successful!")
-        
+
         # Create database if not exists
         with azure_engine.connect() as conn:
             conn.execute(text("CREATE DATABASE IF NOT EXISTS infinityai CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"))
             conn.commit()
             logger.info("✅ Target database ready!")
-        
+
         # Since SingleStore connection is failing, let's create sample data
         # that matches your application's expected schema
         logger.info("📊 Creating sample data structure for testing...")
-        
+
         # Create basic tables that your FastAPI app might need
         with azure_engine.connect() as conn:
             # Users table (common in authentication systems)
@@ -60,7 +60,7 @@ def migrate_data():
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
                 ) ENGINE=InnoDB
             """))
-            
+
             # API tokens table (for JWT authentication)
             conn.execute(text("""
                 CREATE TABLE IF NOT EXISTS api_tokens (
@@ -72,7 +72,7 @@ def migrate_data():
                     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
                 ) ENGINE=InnoDB
             """))
-            
+
             # Trading data table (based on your Dhan API integration)
             conn.execute(text("""
                 CREATE TABLE IF NOT EXISTS trading_data (
@@ -87,35 +87,35 @@ def migrate_data():
                     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
                 ) ENGINE=InnoDB
             """))
-            
+
             # Insert sample data
             conn.execute(text("""
-                INSERT IGNORE INTO users (username, email, hashed_password) 
-                VALUES 
+                INSERT IGNORE INTO users (username, email, hashed_password)
+                VALUES
                 ('admin', 'admin@infinityai.pro', '$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW'),
                 ('testuser', 'test@infinityai.pro', '$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36WQoeG6Lruj3vjPGga31lW')
             """))
-            
+
             conn.commit()
             logger.info("✅ Sample data structure created!")
-        
+
         # Verify the migration
         with azure_engine.connect() as conn:
             tables = conn.execute(text("""
-                SELECT TABLE_NAME, TABLE_ROWS 
-                FROM information_schema.tables 
+                SELECT TABLE_NAME, TABLE_ROWS
+                FROM information_schema.tables
                 WHERE table_schema = 'infinityai'
             """)).fetchall()
-            
+
             logger.info("📊 Migration Summary:")
             logger.info("=" * 50)
             for table in tables:
                 logger.info(f"   Table: {table[0]}, Rows: {table[1]}")
-        
+
         logger.info("🎉 Database migration completed successfully!")
-        
+
         return True
-        
+
     except Exception as e:
         logger.error(f"❌ Migration failed: {str(e)}")
         return False
@@ -124,9 +124,9 @@ if __name__ == "__main__":
     print("🔄 InfinityAI.Pro Alternative Data Migration")
     print("Using Python SQLAlchemy approach")
     print()
-    
+
     success = migrate_data()
-    
+
     if success:
         print("\n🎯 Next Steps:")
         print("1. ✅ Azure MySQL database is ready with basic schema")

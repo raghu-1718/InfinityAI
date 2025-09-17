@@ -12,7 +12,7 @@ class AdvancedBreakoutStrategy:
     def __init__(self, broker: DhanAdapter):
         self.broker = broker
         self.security_id = '1333' # SBIN (State Bank of India)
-        self.exchange = "NSE_EQ" 
+        self.exchange = "NSE_EQ"
         self.lookback_period = 20 # Look at the last 20 days for the breakout
         logger.info("Advanced Breakout Strategy initialized for SBIN (ID: 1333).")
 
@@ -27,7 +27,7 @@ class AdvancedBreakoutStrategy:
             from_date = to_date - timedelta(days=self.lookback_period * 2)
 
             logger.info(f"Fetching historical data for the last {self.lookback_period} trading days...")
-            
+
             hist_data = self.broker.dhan.historical_daily_data(
                 security_id=self.security_id,
                 exchange_segment=self.exchange,
@@ -40,12 +40,12 @@ class AdvancedBreakoutStrategy:
                 all_high_prices = hist_data['data']['high']
                 recent_highs = all_high_prices[-self.lookback_period:]
                 breakout_level = max(recent_highs)
-                
+
                 logger.info(f"Calculated {self.lookback_period}-day breakout level: {breakout_level}")
 
                 # --- Get LTP and compare ---
                 ltp = self.broker.get_ltp(security_id=self.security_id, exchange_segment=self.exchange)
-                
+
                 if ltp > 0 and ltp > breakout_level:
                     logger.info(f"!!! BREAKOUT DETECTED !!! LTP ({ltp}) > Breakout Level ({breakout_level}).")
                     # --- Future Step: Place buy order ---

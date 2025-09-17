@@ -15,15 +15,15 @@ class DhanAdapter:
     def __init__(self, user_id: str):
         self.user_id = user_id
         logger.info(f"Initializing DhanAdapter for user: {user_id}")
-        
+
         credentials = get_user_credentials(user_id)
         if not credentials:
             logger.error(f"Failed to initialize DhanAdapter: Credentials not found for user {user_id}")
             raise ValueError(f"Credentials not found for user {user_id}")
-        
+
         self.client_id = credentials['client_id']
         self.access_token = credentials['access_token']
-        
+
         self.dhan = dhanhq(self.client_id, self.access_token)
         logger.info(f"DhanAdapter initialized successfully for user: {user_id}")
 
@@ -50,7 +50,7 @@ class DhanAdapter:
                 from_date=today_str,
                 to_date=today_str
             )
-            
+
             if response.get('status') == 'success' and response.get('data', {}).get('close'):
                 # The 'close' of the last candle is the most recent LTP
                 ltp = response['data']['close'][-1]
@@ -68,7 +68,7 @@ class DhanAdapter:
         Places an order with the broker.
         """
         logger.info(f"Executing trade for {self.client_id}: {transaction_type} {quantity} of {security_id} @ {price}")
-        
+
         from dhanhq import (
             SELL, BUY, MARKET, LIMIT,
             NSE_EQ, NSE_FNO, BSE_EQ, MCX_COMM,

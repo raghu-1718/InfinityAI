@@ -65,5 +65,5 @@ class DailyPredictor:
             'predicted_high': round(resistance1, 2),
             'pivot_point': round(pivot_point, 2)
         }
-        
+
         return prediction

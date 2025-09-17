@@ -37,10 +37,10 @@ async def health_check():
     try:
         # Test database connectivity
         db_status = "connected" if db.test_connection() else "disconnected"
-        
+
         # Log health check
         logger.info("Health check performed successfully")
-        
+
         return {
             "status": "healthy",
             "database": db_status,

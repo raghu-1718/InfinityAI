@@ -12,11 +12,11 @@ from rate_limit_config import app as flask_limiter_app
 app = auth_app
 
 def require_role(role):
-	def decorator(user=Depends(...)):
-		if user.role not in RBAC_MATRIX or role not in RBAC_MATRIX[user.role]:
-			raise HTTPException(status_code=403, detail="Forbidden")
-		return user
-	return decorator
+    def decorator(user=Depends(...)):
+        if user.role not in RBAC_MATRIX or role not in RBAC_MATRIX[user.role]:
+            raise HTTPException(status_code=403, detail="Forbidden")
+        return user
+    return decorator
 
 import logging
 from core.audit_logging import log_request

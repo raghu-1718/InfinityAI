@@ -41,12 +41,12 @@ class AdvancedEngine:
         while self.is_running:
             try:
                 logger.info("Executing strategy cycle...")
-                await self.strategy.run_once() 
+                await self.strategy.run_once()
                 logger.info("Strategy cycle complete. Waiting for next cycle.")
             except Exception as e:
                 logger.error(f"An error occurred during the strategy cycle: {e}", exc_info=True)
-            
-            await asyncio.sleep(60) 
+
+            await asyncio.sleep(60)
 
     async def stop(self):
         """
