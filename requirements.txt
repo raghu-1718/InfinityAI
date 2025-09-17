@@ -7,7 +7,7 @@ mysql-connector-python>=8.0.26
 PyMySQL>=1.1.0
 opencensus-ext-azure>=1.1.9  # For Azure Application Insights
 gunicorn
-Python-jose
+python-jose[cryptography]
 python-multipart
 passlib
 bcrypt
@@ -17,7 +17,6 @@ apache-airflow
 apache-airflow-providers-microsoft-azure
 apache-airflow-providers-mysql
 apache-airflow-providers-apache-spark
-python-artificial-intelligence
 requests
 pandas
 numpy
@@ -64,7 +63,4 @@ azure-servicebus
 azure-functions
 azure-functions-worker
 distributed
-fastapi.middleware.cors
-starlette.middleware.cors
-python-jose[cryptography]
 
