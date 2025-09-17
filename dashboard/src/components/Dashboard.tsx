@@ -4,6 +4,10 @@ import PortfolioOverview from './PortfolioOverview';
 import LiveAnalytics from './LiveAnalytics';
 import RiskPanel from './RiskPanel';
 import MarketSentiment from './MarketSentiment';
+import AssetAllocation from './AssetAllocation';
+import DrawdownChart from './DrawdownChart';
+import ModelLeaderboard from './ModelLeaderboard';
+import DriftMonitor from './DriftMonitor';
 
 const Dashboard = () => (
   <Box p={3} bgcolor="background.default" minHeight="100vh">
@@ -13,6 +17,8 @@ const Dashboard = () => (
         <Paper elevation={4} sx={{ p: 2 }}>
           <PortfolioOverview />
         </Paper>
+        <AssetAllocation />
+        <DrawdownChart />
         <Paper elevation={4} sx={{ mt: 3, p: 2 }}>
           <LiveAnalytics />
         </Paper>
@@ -24,6 +30,8 @@ const Dashboard = () => (
         <Paper elevation={4} sx={{ mt: 3, p: 2 }}>
           <MarketSentiment />
         </Paper>
+        <ModelLeaderboard />
+        <DriftMonitor />
       </Box>
     </Box>
     <Box mt={4} display="flex" justifyContent="flex-end" gap={2}>
