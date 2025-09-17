@@ -10,7 +10,7 @@ c.Spawner.default_url = '/lab'
 
 # Experiment tracking (MLflow)
 import mlflow
-mlflow.set_tracking_uri("http://localhost:5000")
+mlflow.set_tracking_uri("https://www.infinityai.pro/mlflow")
 mlflow.start_run(run_name="experiment_1")
 mlflow.log_param("param1", 42)
 mlflow.log_metric("accuracy", 0.95)
@@ -22,6 +22,6 @@ mlflow.end_run()
 '''
 metadata:
   database: "infinityai"
-  host: "localhost"
+  host: "www.infinityai.pro"
   port: 5432
 '''

@@ -56,10 +56,13 @@ async def health_check():
 # [Your existing routes and functionality here]
 
 # Import any unique routes from api/routes
-from api.routes import webhook
 
-# Add webhook routes to the application
+# Import and add trade and webhook routes
+# Import and add AI/ML router
+from api.routes import webhook, trade, ai
 app.include_router(webhook.router, prefix="/webhook", tags=["Webhook"])
+app.include_router(trade.router, prefix="/trade", tags=["Trade"])
+app.include_router(ai.router, prefix="/ai", tags=["AI/ML"])
 
 # Startup and shutdown events
 @app.on_event("startup")

@@ -8,5 +8,8 @@
   "scripts": {
     "build": "webpack --mode production",
     "build-web": "webpack --mode production"
+  },
+  "dependencies": {
+    "@mui/icons-material": "^7.3.2"
   }
 }
