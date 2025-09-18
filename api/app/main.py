@@ -1,8 +1,11 @@
 # --- FastAPI & Flask-Limiter Integration ---
 from fastapi import FastAPI, Depends, HTTPException
-from .auth import app as auth_app
+# Reuse or create FastAPI app
+try:
+    from .auth import app as auth_app
+except Exception:
+    auth_app = FastAPI()
 from core.rbac import RBAC_MATRIX
-from core.secrets import get_secret
 
 from starlette.middleware.wsgi import WSGIMiddleware
 import sys
@@ -18,8 +21,6 @@ def require_role(role):
         return user
     return decorator
 
-import logging
-from core.audit_logging import log_request
 
 from .ws import app as ws_app
 # WebSocket endpoint for market data

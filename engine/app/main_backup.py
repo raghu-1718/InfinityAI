@@ -1,16 +1,11 @@
 import logging
-import time
-import threading
 import uvicorn
-import asyncio
 from fastapi import FastAPI, HTTPException, Depends
 import os
-import datetime
-from typing import Dict, Any, List, Optional
-import json
+from datetime import datetime, timedelta
+from typing import Optional
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
-from datetime import datetime, timedelta
 from passlib.hash import bcrypt
 
 # Import shared utilities
@@ -44,7 +39,7 @@ async def health_check():
         return {
             "status": "healthy",
             "database": db_status,
-            "timestamp": datetime.datetime.utcnow().isoformat(),
+            "timestamp": datetime.utcnow().isoformat(),
             "version": "1.0.0",
             "service": "infinityai-backend-app"
         }
@@ -53,7 +48,7 @@ async def health_check():
         return {
             "status": "unhealthy",
             "error": str(e),
-            "timestamp": datetime.datetime.utcnow().isoformat()
+            "timestamp": datetime.utcnow().isoformat()
         }
 
 # Import existing routes and functionality from engine/app implementation
