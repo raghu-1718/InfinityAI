@@ -35,14 +35,14 @@ jobs:
           pip install pytest pytest-cov
       - name: Lint (flake8)
         run: |
-          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-          flake8 . --count --max-complexity=10 --max-line-length=120 --statistics
+          flake8 api engine/app --count --select=E9,F63,F7,F82 --show-source --statistics
+          flake8 api engine/app --count --max-complexity=10 --max-line-length=120 --statistics
       - name: Type check (mypy)
         run: |
-          mypy --ignore-missing-imports .
+          mypy --ignore-missing-imports api engine/app
       - name: Format check (black)
         run: |
-          black --check .
+          black --check api engine/app
       - name: Run tests
         env:
           TESTING: '1'

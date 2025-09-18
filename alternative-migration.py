@@ -19,7 +19,7 @@ def migrate_data():
     """
 
     # SingleStore connection (from your original setup)
-    singlestore_url = "mysql+pymysql://raghu-f2476:YOUR_PASSWORD@svc-3482219c-a389-4079-b18b-d50662524e8a-shared-dml.aws-virginia-6.svc.singlestore.com:3333/db_raghu_d5f23"
+    # Note: SingleStore source is currently disabled. Remove or re-enable when needed.
 
     # Azure MySQL connection (from deployed infrastructure)
     from urllib.parse import quote_plus
@@ -27,8 +27,7 @@ def migrate_data():
     azure_mysql_url = f"mysql+pymysql://infinityai_admin:{password}@infinityai-mysql-west-eur.mysql.database.azure.com:3306/infinityai"
 
     try:
-        # Test Azure MySQL connection first
-        # singlestore_url removed (unused and sensitive info)
+    # Test Azure MySQL connection first
         azure_engine = create_engine(azure_mysql_url, echo=False)
 
         with azure_engine.connect() as conn:

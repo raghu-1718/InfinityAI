@@ -1,12 +1,11 @@
 from fastapi import FastAPI, HTTPException, Depends
-import os
 from fastapi.middleware.cors import CORSMiddleware
-import os
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import jwt
 from passlib.hash import bcrypt
+import os
 
 # Import shared utilities
 from shared.utils.database import db
@@ -96,7 +95,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     from core.usermanager import get_user_by_username
     user = get_user_by_username(form_data.username)
- 
+
     if not user or not bcrypt.verify(form_data.password, user["hashed_password"]):
         raise HTTPException(status_code=400, detail="Incorrect username or password")
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
