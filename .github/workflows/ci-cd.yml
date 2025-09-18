@@ -9,7 +9,7 @@ on:
     branches: [ main ]
 
 env:
-  workflow_dispatch:
+  REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
