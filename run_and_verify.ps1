@@ -3,6 +3,8 @@
 # --- Configuration ---
 $backendPort = 8000
 $frontendPort = 3000
+$BackendBaseUrl = if ($env:PUBLIC_URL) { $env:PUBLIC_URL } else { "http://localhost:$backendPort" }
+$FrontendBaseUrl = if ($env:FRONTEND_PUBLIC_URL) { $env:FRONTEND_PUBLIC_URL } else { "http://localhost:$frontendPort" }
 $maxWaitSeconds = 30 # Maximum time to wait for services to start
 
 # --- Functions ---
@@ -19,7 +21,7 @@ function Start-Frontend {
     Start-Process powershell -ArgumentList "-NoExit", "-Command", "cd dashboard; npm start" -WindowStyle Minimized
 }
 
-function Verify-Endpoint {
+function Test-Endpoint {
     param(
         [string]$url,
         [string]$serviceName
@@ -58,18 +60,18 @@ try {
 
     # 3. Verify Backend
     # The main app in 'engine' might return 404 for the root, which still means it's running.
-    if (-not (Verify-Endpoint -url "http://localhost:$backendPort/" -serviceName "Backend")) {
+    if (-not (Test-Endpoint -url "$BackendBaseUrl/" -serviceName "Backend")) {
         throw "Backend verification failed."
     }
 
     # 4. Verify Frontend
-    if (-not (Verify-Endpoint -url "http://localhost:$frontendPort" -serviceName "Frontend")) {
+    if (-not (Test-Endpoint -url "$FrontendBaseUrl" -serviceName "Frontend")) {
         throw "Frontend verification failed."
     }
 
     Write-Host "`nAll services started and verified successfully!" -ForegroundColor Cyan
-    Write-Host "Backend is running on http://localhost:$backendPort"
-    Write-Host "Frontend is running on http://localhost:$frontendPort"
+    Write-Host "Backend is running on $BackendBaseUrl"
+    Write-Host "Frontend is running on $FrontendBaseUrl"
 
 }
 catch {

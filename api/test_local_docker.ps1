@@ -13,7 +13,8 @@ docker run -d --name infinityai-local-test-container -p 8000:8000 infinityai-loc
 Start-Sleep -Seconds 5
 
 # Test the health endpoint
-$response = Invoke-WebRequest -Uri "http://localhost:8000/health" -UseBasicParsing -TimeoutSec 10
+$BaseUrl = if ($env:BASE_URL) { $env:BASE_URL } else { 'http://localhost:8000' }
+$response = Invoke-WebRequest -Uri "$BaseUrl/health" -UseBasicParsing -TimeoutSec 10
 Write-Host "Local /health endpoint response:"
 Write-Host $response.Content
 Write-Host "Status code: $($response.StatusCode)"

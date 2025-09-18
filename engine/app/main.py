@@ -1,5 +1,7 @@
 from fastapi import FastAPI, HTTPException, Depends
 import os
+from fastapi.middleware.cors import CORSMiddleware
+import os
 from datetime import datetime, timedelta, timezone
 from typing import Optional
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -20,6 +22,18 @@ app = FastAPI(
     version="1.0.0"
 )
 
+# CORS configuration using env var CORS_ALLOW_ORIGINS (comma-separated)
+cors_origins_env = os.getenv("CORS_ALLOW_ORIGINS", "https://www.infinityai.pro")
+origins = [o.strip() for o in cors_origins_env.split(",") if o.strip()]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # Health check endpoint for Container App probe
 @app.get("/health", tags=["Monitoring"])
 async def health_check():
@@ -37,7 +51,7 @@ async def health_check():
         return {
             "status": "healthy",
             "database": db_status,
-            "timestamp": datetime.datetime.utcnow().isoformat(),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "version": "1.0.0",
             "service": "infinityai-backend-app"
         }
@@ -46,7 +60,7 @@ async def health_check():
         return {
             "status": "unhealthy",
             "error": str(e),
-            "timestamp": datetime.datetime.utcnow().isoformat()
+            "timestamp": datetime.now(timezone.utc).isoformat()
         }
 
 # Import existing routes and functionality from engine/app implementation
@@ -82,6 +96,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     from core.usermanager import get_user_by_username
     user = get_user_by_username(form_data.username)
+ 
     if not user or not bcrypt.verify(form_data.password, user["hashed_password"]):
         raise HTTPException(status_code=400, detail="Incorrect username or password")
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)

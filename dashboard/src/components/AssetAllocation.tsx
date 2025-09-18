@@ -13,7 +13,7 @@ export default function AssetAllocation() {
   useEffect(() => {
     setLoading(true);
     setError(null);
-    fetch('https://www.infinityai.pro/api/portfolio/allocation')
+  fetch('/api/portfolio/allocation')
       .then(res => {
         if (!res.ok) throw new Error('Failed to fetch asset allocation');
         return res.json();

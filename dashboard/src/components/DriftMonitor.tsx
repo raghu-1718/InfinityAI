@@ -10,7 +10,7 @@ export default function DriftMonitor() {
   useEffect(() => {
     setLoading(true);
     setError(null);
-    fetch('https://www.infinityai.pro/api/ai/models/drift')
+  fetch('/api/ai/models/drift')
       .then(res => {
         if (!res.ok) throw new Error('Failed to fetch drift data');
         return res.json();

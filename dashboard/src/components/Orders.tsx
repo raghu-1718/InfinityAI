@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiUrl } from '../config/api';
 import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, Box, CircularProgress, Chip } from '@mui/material';
 
 // Interface for a single order based on Dhan API response
@@ -50,7 +51,7 @@ const Orders: React.FC = () => {
     useEffect(() => {
         const fetchOrders = async () => {
             try {
-                const response = await fetch(`http://localhost:8000/orders/${userId}`);
+                const response = await fetch(apiUrl(`/orders/${userId}`));
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData.detail || 'Failed to fetch orders');

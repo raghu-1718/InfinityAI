@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { apiUrl } from '../config/api';
 import { Card, CardContent, Typography, Box, CircularProgress, Stack, Divider } from '@mui/material';
 
 interface FundData {
@@ -23,7 +24,7 @@ const FundBalance: React.FC = () => {
         const fetchFunds = async () => {
             setLoading(true);
             try {
-                const response = await fetch(`http://localhost:8000/funds/${userId}`);
+                const response = await fetch(apiUrl(`/funds/${userId}`));
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData.detail || 'Failed to fetch funds');

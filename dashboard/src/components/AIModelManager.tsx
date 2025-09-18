@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { apiUrl } from '../config/api';
 import { Box, Button, Typography, TextField, Paper, CircularProgress, Alert, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 
-const API_BASE = process.env.REACT_APP_API_URL || 'http://localhost:8000/ai';
+const API_BASE = `${apiUrl('/ai')}`;
 
 const AIModelManager: React.FC = () => {
   const [models, setModels] = useState<string[]>([]);

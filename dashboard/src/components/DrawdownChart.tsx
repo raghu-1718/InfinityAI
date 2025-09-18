@@ -10,7 +10,7 @@ export default function DrawdownChart() {
   useEffect(() => {
     setLoading(true);
     setError(null);
-    fetch('https://www.infinityai.pro/api/portfolio/drawdown')
+  fetch('/api/portfolio/drawdown')
       .then(res => {
         if (!res.ok) throw new Error('Failed to fetch drawdown data');
         return res.json();

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
+import { apiUrl, wsUrl } from '../config/api';
 import {
     Card, CardContent, Typography, Box, Button, TextField,
     Switch, FormControlLabel, Chip, Alert, Dialog, DialogTitle,
@@ -77,7 +78,7 @@ const LiveTrading: React.FC = () => {
 
     const connectWebSocket = useCallback(() => {
         try {
-            wsRef.current = new WebSocket('ws://localhost:8000/ws/trading');
+            wsRef.current = new WebSocket(wsUrl('/ws/trading'));
 
             wsRef.current.onopen = () => {
                 console.log('WebSocket connected');
@@ -143,14 +144,14 @@ const LiveTrading: React.FC = () => {
             setLoading(true);
 
             // Fetch recent trades
-            const tradesResponse = await fetch(`http://localhost:8000/trading/recent-trades/${userId}`);
+            const tradesResponse = await fetch(apiUrl(`/trading/recent-trades/${userId}`));
             if (tradesResponse.ok) {
                 const tradesData = await tradesResponse.json();
                 setLiveTrades(tradesData.trades || []);
             }
 
             // Fetch current signals
-            const signalsResponse = await fetch(`http://localhost:8000/trading/signals`);
+            const signalsResponse = await fetch(apiUrl('/trading/signals'));
             if (signalsResponse.ok) {
                 const signalsData = await signalsResponse.json();
                 setSignals(signalsData.signals || []);
@@ -173,7 +174,7 @@ const LiveTrading: React.FC = () => {
                 timestamp: new Date().toISOString()
             };
 
-            const response = await fetch('http://localhost:8000/trading/execute-order', {
+            const response = await fetch(apiUrl('/trading/execute-order'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(orderData)
@@ -206,7 +207,7 @@ const LiveTrading: React.FC = () => {
         try {
             const newState = !autoTrading.enabled;
 
-            const response = await fetch('http://localhost:8000/trading/auto-trading', {
+            const response = await fetch(apiUrl('/trading/auto-trading'), {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

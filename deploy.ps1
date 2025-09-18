@@ -232,8 +232,9 @@ function Deploy-Docker {
             exit 1
         }
 
-        Write-Log "Docker deployment completed successfully" $Green
-        Write-Log "Application available at: http://localhost:8000" $Green
+    Write-Log "Docker deployment completed successfully" $Green
+    $backendUrl = if ($env:PUBLIC_URL) { $env:PUBLIC_URL } else { 'http://localhost:8000' }
+    Write-Log "Application available at: $backendUrl" $Green
 
     } finally {
         Pop-Location
@@ -252,8 +253,11 @@ function Deploy-Podman {
             exit 1
         }
 
-        Write-Log "Podman deployment completed successfully" $Green
-        Write-Log "Application available at: http://localhost:8000" $Green
+    Write-Log "Podman deployment completed successfully" $Green
+    $backendUrl = if ($env:PUBLIC_URL) { $env:PUBLIC_URL } else { 'http://localhost:8000' }
+    $frontendUrl = if ($env:FRONTEND_PUBLIC_URL) { $env:FRONTEND_PUBLIC_URL } else { 'http://localhost:3001' }
+    Write-Log "Backend: $backendUrl" $Green
+    Write-Log "Frontend: $frontendUrl" $Green
 
     } finally {
         Pop-Location
@@ -312,8 +316,10 @@ function Start-Local {
     } -ArgumentList $ProjectRoot
 
     Write-Log "Local development environment started" $Green
-    Write-Log "Backend: http://localhost:8000" $Green
-    Write-Log "Frontend: http://localhost:3001" $Green
+    $backendUrl = if ($env:PUBLIC_URL) { $env:PUBLIC_URL } else { 'http://localhost:8000' }
+    $frontendUrl = if ($env:FRONTEND_PUBLIC_URL) { $env:FRONTEND_PUBLIC_URL } else { 'http://localhost:3001' }
+    Write-Log "Backend: $backendUrl" $Green
+    Write-Log "Frontend: $frontendUrl" $Green
     Write-Log "Press Ctrl+C to stop all services" $Yellow
 
     # Wait for user input to stop

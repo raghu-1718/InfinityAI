@@ -9,7 +9,7 @@ export default function ModelLeaderboard() {
   useEffect(() => {
     setLoading(true);
     setError(null);
-    fetch('https://www.infinityai.pro/api/ai/models/leaderboard')
+  fetch('/api/ai/models/leaderboard')
       .then(res => {
         if (!res.ok) throw new Error('Failed to fetch model leaderboard');
         return res.json();
