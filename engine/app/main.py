@@ -33,6 +33,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+#
+# Health check endpoint for Container App probe
+#
 # Health check endpoint for Container App probe
 @app.get("/health", tags=["Monitoring"])
 async def health_check():
@@ -81,6 +84,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
+
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode = data.copy()
     if expires_delta:
@@ -90,6 +94,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
+
 
 @app.post("/login", tags=["Auth"])
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
@@ -104,14 +109,18 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
+
 @app.get("/test", tags=["Test"])
 async def test_endpoint():
     return {"message": "Test endpoint working"}
 
 # Startup and shutdown events
+
+
 @app.on_event("startup")
 async def startup_event():
     logger.info("Starting InfinityAI Trading API")
+
 
 @app.on_event("shutdown")
 async def shutdown_event():

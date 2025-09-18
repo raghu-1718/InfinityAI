@@ -21,24 +21,30 @@ fake_users_db = {
     }
 }
 
+
 class Token(BaseModel):
     access_token: str
     token_type: str
 
+
 class User(BaseModel):
     username: str
+
 
 class UserInDB(User):
     hashed_password: str
 
+
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
+
 
 def get_user(db, username: str):
     if username in db:
         user_dict = db[username]
         return UserInDB(**user_dict)
     return None
+
 
 def authenticate_user(db, username: str, password: str):
     user = get_user(db, username)
@@ -48,11 +54,13 @@ def authenticate_user(db, username: str, password: str):
         return False
     return user
 
+
 def create_access_token(data: dict, expires_delta: timedelta = None):
     to_encode = data.copy()
     expire = datetime.utcnow() + (expires_delta or timedelta(minutes=15))
     to_encode.update({"exp": expire})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
 
 @app.post("/login", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends()):
@@ -65,9 +73,11 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
+
 @app.get("/health")
 async def health():
     return {"status": "ok"}
+
 
 @app.get("/protected")
 async def protected(token: str = Depends(oauth2_scheme)):

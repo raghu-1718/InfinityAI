@@ -12,6 +12,7 @@ limiter = Limiter(
     storage_uri="redis://:<password>@<azure-redis-host>:6379/0"
 )
 
+
 @app.route("/health")
 @limiter.limit("10/minute")
 def health():
