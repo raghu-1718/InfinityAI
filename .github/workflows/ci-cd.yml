@@ -1,6 +1,8 @@
 # CI/CD Pipeline for InfinityAI.Pro
+
 name: CI/CD
 on:
+  workflow_dispatch:
   push:
     branches: [ main ]
   pull_request:
