@@ -4,7 +4,6 @@ Alternative data migration using Python SQLAlchemy
 This uses your application's existing database models to migrate data
 """
 
-import os
 import sys
 from sqlalchemy import create_engine, text, inspect
 from sqlalchemy.orm import sessionmaker
@@ -29,11 +28,11 @@ def migrate_data():
 
     try:
         # Test Azure MySQL connection first
-        logger.info("🔗 Testing Azure MySQL connection...")
+        # singlestore_url removed (unused and sensitive info)
         azure_engine = create_engine(azure_mysql_url, echo=False)
 
         with azure_engine.connect() as conn:
-            result = conn.execute(text("SELECT 1 as test"))
+            conn.execute(text("SELECT 1 as test"))
             logger.info("✅ Azure MySQL connection successful!")
 
         # Create database if not exists
