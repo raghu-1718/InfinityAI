@@ -26,10 +26,13 @@ jobs:
           node-version: '18'
           cache: 'npm'
           cache-dependency-path: dashboard/package-lock.json
-      - name: Install and Build dashboard
+      - name: Install dependencies
         working-directory: dashboard
         run: |
           npm ci || npm install
+      - name: Build React app
+        working-directory: dashboard
+        run: |
           npm run build
       - name: Build And Deploy
         id: builddeploy
@@ -38,13 +41,10 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.AZURE_STATIC_WEB_APPS_API_TOKEN_BRAVE_MUSHROOM_033F9231E }}
           repo_token: ${{ secrets.GITHUB_TOKEN }} # Used for Github integrations (i.e. PR comments)
           action: "upload"
-          ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
-          # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
           app_location: "dashboard" # App source code path
           api_location: "" # Api source code path - optional
           output_location: "build" # Built app content directory - optional
           skip_app_build: true # use prebuilt artifacts to avoid Oryx/NPM issues
-          ###### End of Repository/Build Configurations ######
 
   close_pull_request_job:
     if: github.event_name == 'pull_request' && github.event.action == 'closed'
