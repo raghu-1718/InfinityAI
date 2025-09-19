@@ -22,7 +22,8 @@ app = FastAPI(
 )
 
 # CORS configuration using env var CORS_ALLOW_ORIGINS (comma-separated)
-cors_origins_env = os.getenv("CORS_ALLOW_ORIGINS", "https://www.infinityai.pro")
+# Default allows both the frontend (www) and backend (api) subdomains in production.
+cors_origins_env = os.getenv("CORS_ALLOW_ORIGINS", "https://www.infinityai.pro,https://api.infinityai.pro")
 origins = [o.strip() for o in cors_origins_env.split(",") if o.strip()]
 
 app.add_middleware(
@@ -32,6 +33,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Simple root route for smoke tests
+@app.get("/")
+async def root():
+    return {"service": "infinityai-backend-app", "docs": "/docs", "health": "/health"}
 
 #
 # Health check endpoint for Container App probe

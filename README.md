@@ -30,7 +30,7 @@
 - Poetry (Python dependency management)
 - Docker (optional, for containerized deployment)
 
-### Installation
+### Installation (Local Dev)
 
 1. **Clone the repository**
    ```bash
@@ -73,12 +73,24 @@
 1. **Start the Application**
 
 ```bash
-   # Backend (in one terminal)
-   poetry run uvicorn engine.app.main:app --host 0.0.0.0 --port 8000 --reload
+# Backend (SQLite dev mode, from repo root)
+pip install -r requirements.txt
+./scripts/dev_backend.sh
 
-   # Frontend (in another terminal, from dashboard/)
-   npm start
-   ```
+# Frontend (Node 18 required)
+cd dashboard
+# Use Node 18 with nvm
+export NVM_DIR="$HOME/.nvm"; [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh" || [ -s "/usr/local/share/nvm/nvm.sh" ] && . "/usr/local/share/nvm/nvm.sh"
+nvm install 18
+nvm use 18
+export REACT_APP_API_URL=http://localhost:8000
+npm ci || npm install
+npm start
+```
+
+Notes:
+- Root endpoint `/` now returns a simple JSON banner; health is at `/health` and docs at `/docs`.
+- Set `CORS_ALLOW_ORIGINS` if you run the frontend from a different origin.
 
 ## 📖 API Documentation
 
@@ -118,11 +130,18 @@ InfinityAI.Pro/
 
 ## 🚀 Deployment
 
-### Production Deployment
+### Production Deployment (Azure)
 
 The application supports multiple deployment strategies:
 
-#### 1. Azure Container Apps (Recommended)
+#### 1. Azure Web App (Container) + ACR
+
+- CI builds and pushes image to ACR: `infinityaiprodacr.azurecr.io/infinityai-backend:latest`
+- Deployment config points App Service `infinityai-backend-app` to that image.
+- Health check path: `/health`
+
+Optional helper script:
+- `scripts/update_appservice_container.ps1` (sets ACR pull, image, and health path)
 
 ```bash
 # Using Azure Developer CLI
@@ -193,6 +212,11 @@ Set up Dhan API credentials:
 ```env
 DHAN_CLIENT_ID=your-client-id
 DHAN_ACCESS_TOKEN=your-access-token
+### Custom Domain
+
+- Frontend (Azure Static Web Apps): add your domain (e.g., `www.infinityai.pro`), validate DNS TXT, and set CNAME.
+- Backend (Azure Web App): add custom domain, upload/enable certificate, and ensure CORS allows your domain(s) via `CORS_ALLOW_ORIGINS`.
+
 ```
 
 ## 🧪 Testing

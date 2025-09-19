@@ -1,8 +1,8 @@
 # Azure resource details
-$backendUrl = "https://infinityai-backend-app.victorioussmoke-d17c4103.westus2.azurecontainerapps.io/health"
+$backendUrl = "https://infinityai-backend-app.azurewebsites.net/health"
 $resourceGroup = "InfinityAI-Prod-RG-West"
 $acrName = "infinityaiprodacr"
-$containerEnv = "InfinityAI-Prod-Env"
+$containerEnv = "InfinityAI-Prod-RG-West-env"
 $subscriptionId = "62fc147a-2efc-4494-be1f-faa521439799"
 
 Write-Host "`n=== InfinityAI Azure Resource Verification ===`n"

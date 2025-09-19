@@ -9,8 +9,9 @@ on:
     branches: [ main ]
 
 env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  ACR_NAME: infinityaiprodacr
+  ACR_LOGIN_SERVER: infinityaiprodacr.azurecr.io
+  IMAGE_NAME: infinityai-backend
 
 jobs:
   test:
@@ -20,7 +21,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: '3.12'
       - name: Cache pip
         uses: actions/cache@v3
         with:
@@ -59,24 +60,19 @@ jobs:
     if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
-      - name: Log in to Container Registry
-        uses: docker/login-action@v3
+      - name: Azure Login
+        uses: azure/login@v1
         with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      - name: ACR Login
+        run: |
+          az acr login --name ${{ env.ACR_NAME }}
+      - name: Build and push image to ACR
+        run: |
+          IMAGE_TAG=${{ github.sha }}
+          docker build -t ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:$IMAGE_TAG -t ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest .
+          docker push ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:$IMAGE_TAG
+          docker push ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest
 
   deploy:
     runs-on: ubuntu-latest
@@ -88,21 +84,30 @@ jobs:
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
-      - name: Deploy to Azure Container App
-        uses: azure/container-apps-deploy-action@v1
+      - name: Configure Azure Web App to use container image
+        uses: azure/webapps-deploy@v2
         with:
-          resourceGroup: InfinityAI
-          containerAppName: infinityai-backend-app
-          imageToDeploy: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-      - name: Set up Python
+          app-name: infinityai-backend-app
+          slot-name: production
+          images: ${{ env.ACR_LOGIN_SERVER }}/${{ env.IMAGE_NAME }}:latest
+      - name: Ensure critical App Settings (WEBSITES_PORT, CORS_ALLOW_ORIGINS)
+        env:
+          CORS_ALLOW_ORIGINS: ${{ secrets.CORS_ALLOW_ORIGINS }}
+        run: |
+          ORIGINS=${CORS_ALLOW_ORIGINS:-https://www.infinityai.pro,https://api.infinityai.pro}
+          az webapp config appsettings set \
+            --name infinityai-backend-app \
+            --resource-group InfinityAI-Prod-RG-West \
+            --settings WEBSITES_PORT=8000 CORS_ALLOW_ORIGINS="$ORIGINS"
+      - name: Run Alembic migrations
         uses: actions/setup-python@v4
         with:
-          python-version: '3.9'
+          python-version: '3.12'
       - name: Install Poetry and Alembic
         run: |
           pip install poetry
           poetry install
-      - name: Run Alembic migrations
+      - name: Alembic upgrade
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
         run: |
