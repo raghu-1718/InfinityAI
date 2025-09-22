@@ -34,15 +34,18 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Simple root route for smoke tests
+ # Simple root route for smoke tests
+
+
 @app.get("/")
 async def root():
     return {"service": "infinityai-backend-app", "docs": "/docs", "health": "/health"}
 
+
 #
 # Health check endpoint for Container App probe
 #
-# Health check endpoint for Container App probe
+
 @app.get("/health", tags=["Monitoring"])
 async def health_check():
     """
