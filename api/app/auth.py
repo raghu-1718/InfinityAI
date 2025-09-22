@@ -63,10 +63,6 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
-
-
-
-
 @app.post("/login", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends()) -> dict:
     user = authenticate_user(fake_users_db, form_data.username, form_data.password)
@@ -79,13 +75,9 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()) -> dict:
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-
-
 @app.get("/health")
 async def health() -> dict:
     return {"status": "ok"}
-
-
 
 
 @app.get("/protected")
