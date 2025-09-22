@@ -4,6 +4,7 @@ from jose import JWTError, jwt
 from passlib.context import CryptContext
 from pydantic import BaseModel
 from datetime import datetime, timedelta
+from typing import Any, Dict, Optional
 
 app = FastAPI()
 
@@ -39,8 +40,6 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     return pwd_context.verify(plain_password, hashed_password)
 
 
-from typing import Any, Dict, Optional
-
 def get_user(db: Dict[str, Any], username: str) -> Optional[UserInDB]:
     if username in db:
         user_dict = db[username]
@@ -64,8 +63,9 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
-from fastapi import status
-from fastapi.responses import JSONResponse
+
+
+
 
 @app.post("/login", response_model=Token)
 async def login(form_data: OAuth2PasswordRequestForm = Depends()) -> dict:
@@ -79,9 +79,13 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()) -> dict:
     return {"access_token": access_token, "token_type": "bearer"}
 
 
+
+
 @app.get("/health")
 async def health() -> dict:
     return {"status": "ok"}
+
+
 
 
 @app.get("/protected")
