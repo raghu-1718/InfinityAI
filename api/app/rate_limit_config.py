@@ -15,7 +15,7 @@ limiter = Limiter(
 
 @app.route("/health")
 @limiter.limit("10/minute")
-def health():
+def health() -> dict:
     return {"status": "ok"}
 
 # Example MongoDB config (if using Azure MongoDB)

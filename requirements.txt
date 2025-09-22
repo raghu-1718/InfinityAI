@@ -3,7 +3,7 @@ uvicorn[standard]==0.29.0
 python-dotenv==1.0.1
 dhanhq==2.0.2
 SQLAlchemy==2.0.35
-mysql-connector-python==8.4.0
+mysql-connector-python
 PyMySQL==1.1.1
 opencensus-ext-azure==1.1.13
 gunicorn==21.2.0

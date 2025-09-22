@@ -16,7 +16,7 @@ class StructuredLogFormatter(logging.Formatter):
     Includes correlation ID and additional context data.
     """
 
-    def format(self, record):
+    def format(self, record: logging.LogRecord) -> str:
         log_data = {
             'timestamp': datetime.utcnow().isoformat() + 'Z',
             'level': record.levelname,
@@ -47,11 +47,11 @@ class CorrelationAdapter(logging.LoggerAdapter):
     Useful for tracking requests across services.
     """
 
-    def __init__(self, logger, correlation_id=None):
+    def __init__(self, logger: logging.Logger, correlation_id: Optional[str] = None) -> None:
         super().__init__(logger, {})
         self.correlation_id = correlation_id or str(uuid.uuid4())
 
-    def process(self, msg, kwargs):
+    def process(self, msg: Any, kwargs: dict[str, Any]) -> tuple[Any, dict[str, Any]]:
         # Create copy of kwargs to avoid modifying the original
         kwargs_copy = kwargs.copy()
 
@@ -64,7 +64,7 @@ class CorrelationAdapter(logging.LoggerAdapter):
 
         return msg, kwargs_copy
 
-    def with_custom_fields(self, **fields):
+    def with_custom_fields(self, **fields: Any) -> 'CorrelationAdapter':
         """Add custom fields to the log records."""
         def process(msg, kwargs):
             msg, kwargs = self.process(msg, kwargs)
@@ -85,7 +85,7 @@ class CorrelationAdapter(logging.LoggerAdapter):
         adapter.process = process
         return adapter
 
-def configure_logging(app_name: str = 'infinityai-backend', log_level: str = 'INFO'):
+def configure_logging(app_name: str = 'infinityai-backend', log_level: str = 'INFO') -> logging.Logger:
     """
     Configure structured logging for the application.
     Automatically detects Azure environment and integrates with App Insights.
@@ -127,7 +127,7 @@ def configure_logging(app_name: str = 'infinityai-backend', log_level: str = 'IN
     app_logger = logging.getLogger(app_name)
     return app_logger
 
-def get_logger(module_name: str, correlation_id: Optional[str] = None):
+def get_logger(module_name: str, correlation_id: Optional[str] = None) -> CorrelationAdapter:
     """
     Get a logger for a specific module with correlation ID support.
     """

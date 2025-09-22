@@ -14,7 +14,9 @@ engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False} i
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base.metadata.create_all(bind=engine)
 
-def get_user_credentials(user_id):
+from typing import Optional, Dict, Any
+
+def get_user_credentials(user_id: int) -> Optional[Dict[str, Any]]:
     session = SessionLocal()
     user = session.query(User).filter_by(id=user_id).first()
     session.close()
@@ -30,7 +32,7 @@ def get_user_credentials(user_id):
         }
     return None
 
-def get_user_by_username(username):
+def get_user_by_username(username: str) -> Optional[Dict[str, Any]]:
     session = SessionLocal()
     user = session.query(User).filter_by(username=username).first()
     session.close()

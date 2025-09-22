@@ -5,8 +5,8 @@ app = FastAPI()
 
 
 @app.websocket("/ws/market-data")
-async def websocket_endpoint(websocket: WebSocket):
+async def websocket_endpoint(websocket: WebSocket) -> None:
     await websocket.accept()
     while True:
-        data = await websocket.receive_text()
+        data: str = await websocket.receive_text()
         await websocket.send_text(f"Market data: {data}")

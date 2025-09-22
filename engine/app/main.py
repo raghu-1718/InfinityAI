@@ -15,7 +15,7 @@ from shared.utils.logger import configure_logging
 logger = configure_logging(app_name="infinityai-backend", log_level="INFO")
 
 # Create FastAPI application
-app = FastAPI(
+app: FastAPI = FastAPI(
     title="InfinityAI Trading API",
     description="Trading API for InfinityAI.Pro",
     version="1.0.0"
@@ -38,7 +38,7 @@ app.add_middleware(
 
 
 @app.get("/")
-async def root():
+async def root() -> dict[str, str]:
     return {"service": "infinityai-backend-app", "docs": "/docs", "health": "/health"}
 
 
@@ -47,7 +47,7 @@ async def root():
 #
 
 @app.get("/health", tags=["Monitoring"])
-async def health_check():
+async def health_check() -> dict[str, str]:
     """
     Health check endpoint for Azure Container App health probe.
     Returns status and basic diagnostics including database connectivity check.
@@ -94,7 +94,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
 
-def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
+def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -> str:
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
@@ -106,7 +106,7 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
 
 
 @app.post("/login", tags=["Auth"])
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+async def login(form_data: OAuth2PasswordRequestForm = Depends()) -> dict[str, str]:
     from core.usermanager import get_user_by_username
     user = get_user_by_username(form_data.username)
 
@@ -120,17 +120,17 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
 
 
 @app.get("/test", tags=["Test"])
-async def test_endpoint():
+async def test_endpoint() -> dict[str, str]:
     return {"message": "Test endpoint working"}
 
 # Startup and shutdown events
 
 
 @app.on_event("startup")
-async def startup_event():
+async def startup_event() -> None:
     logger.info("Starting InfinityAI Trading API")
 
 
 @app.on_event("shutdown")
-async def shutdown_event():
+async def shutdown_event() -> None:
     logger.info("Shutting down InfinityAI Trading API")

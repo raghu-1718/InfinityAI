@@ -20,13 +20,13 @@ class DatabaseManager:
     _pool = None
     _is_sqlite = False
 
-    def __new__(cls):
+    def __new__(cls) -> 'DatabaseManager':
         if cls._instance is None:
             cls._instance = super(DatabaseManager, cls).__new__(cls)
             cls._instance._initialize_pool()
         return cls._instance
 
-    def _initialize_pool(self, pool_size: int = 5):
+    def _initialize_pool(self, pool_size: int = 5) -> None:
         """Initialize the connection pool with retry logic."""
         if os.getenv("TESTING") == "1":
             self._is_sqlite = True
@@ -97,7 +97,7 @@ class DatabaseManager:
             return False
 
     @contextmanager
-    def get_connection(self):
+    def get_connection(self) -> Any:
         """Get a connection from the pool with context management."""
         if self._is_sqlite:
             yield self._sqlite_conn
@@ -113,7 +113,7 @@ class DatabaseManager:
             if conn and conn.is_connected():
                 conn.close()
 
-    def execute_query(self, query: str, params: Tuple = None) -> List[Dict[str, Any]]:
+    def execute_query(self, query: str, params: Optional[Tuple[Any, ...]] = None) -> List[Dict[str, Any]]:
         """Execute a query and return results as a list of dictionaries."""
         if self._is_sqlite:
             cursor = self._sqlite_conn.cursor()
@@ -126,7 +126,7 @@ class DatabaseManager:
             cursor.execute(query, params or ())
             return cursor.fetchall()
 
-    def execute_update(self, query: str, params: Tuple = None) -> int:
+    def execute_update(self, query: str, params: Optional[Tuple[Any, ...]] = None) -> int:
         """Execute an update query and return the number of affected rows."""
         if self._is_sqlite:
             cursor = self._sqlite_conn.cursor()
