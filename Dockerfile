@@ -1,5 +1,5 @@
 # For more information, please refer to https://aka.ms/vscode-docker-python
-FROM python:3-slim
+FROM python:3.12-slim
 
 EXPOSE 8000
 
@@ -8,6 +8,10 @@ ENV PYTHONDONTWRITEBYTECODE=1
 
 # Turns off buffering for easier container logging
 ENV PYTHONUNBUFFERED=1
+
+
+# Install build tools and system dependencies for Python packages
+RUN apt-get update && apt-get install -y build-essential gcc g++ libffi-dev libssl-dev && rm -rf /var/lib/apt/lists/*
 
 # Install pip requirements
 COPY requirements.txt .
