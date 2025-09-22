@@ -34,7 +34,7 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
- # Simple root route for smoke tests
+# Simple root route for smoke tests
 
 
 @app.get("/")
