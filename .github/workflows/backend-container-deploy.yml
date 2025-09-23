@@ -1,3 +1,143 @@
+name: Backend Container Deploy
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - Dockerfile
+      - requirements.txt
+      - engine/**
+      - core/**
+      - shared/**
+      - .github/workflows/backend-container-deploy.yml
+  workflow_dispatch: {}
+
+env:
+  # Required repo variables (configure in Settings → Variables → Actions)
+  ACR_NAME: ${{ vars.ACR_NAME }}
+  ACR_LOGIN_SERVER: ${{ vars.ACR_LOGIN_SERVER }}
+  AZURE_RESOURCE_GROUP: ${{ vars.AZURE_RESOURCE_GROUP }}
+  AZURE_WEBAPP_NAME: ${{ vars.AZURE_WEBAPP_NAME }}
+  # Optional variables with sensible defaults
+  IMAGE_NAME: ${{ vars.IMAGE_NAME || 'infinityai-backend' }}
+  DOCKERFILE_PATH: ${{ vars.DOCKERFILE_PATH || 'Dockerfile' }}
+  CONTEXT_PATH: ${{ vars.CONTEXT_PATH || '.' }}
+  CORS_ALLOW_ORIGINS: ${{ vars.CORS_ALLOW_ORIGINS || 'https://www.infinityai.pro,https://api.infinityai.pro' }}
+  APP_PORT: ${{ vars.APP_PORT || '8000' }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Validate required variables
+        run: |
+          required_vars=(ACR_NAME ACR_LOGIN_SERVER AZURE_RESOURCE_GROUP AZURE_WEBAPP_NAME)
+          missing=()
+          for v in "${required_vars[@]}"; do
+            if [ -z "${!v}" ]; then
+              missing+=("$v")
+            fi
+          done
+          if [ ${#missing[@]} -gt 0 ]; then
+            echo "Missing required repo variables: ${missing[*]}" >&2
+            exit 1
+          fi
+
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: ACR login
+        run: az acr login --name "$ACR_NAME"
+
+      - name: Build and push image
+        env:
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          echo "Building $ACR_LOGIN_SERVER/$IMAGE_NAME:$IMAGE_TAG from $DOCKERFILE_PATH with context $CONTEXT_PATH"
+          docker build -f "$DOCKERFILE_PATH" -t "$ACR_LOGIN_SERVER/$IMAGE_NAME:$IMAGE_TAG" "$CONTEXT_PATH"
+          docker push "$ACR_LOGIN_SERVER/$IMAGE_NAME:$IMAGE_TAG"
+          echo "image_ref=$ACR_LOGIN_SERVER/$IMAGE_NAME:$IMAGE_TAG" >> $GITHUB_ENV
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Azure login (OIDC)
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Configure Web App container
+        run: |
+          set -euo pipefail
+          az webapp config container set \
+            --name "$AZURE_WEBAPP_NAME" \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --docker-custom-image-name "$image_ref" \
+            --docker-registry-server-url "https://$ACR_LOGIN_SERVER"
+
+      - name: Apply App Settings (port, CORS, DB)
+        env:
+          # Database secrets (configure in Settings → Secrets and variables → Actions → Secrets)
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          DB_PORT: ${{ vars.DB_PORT || '3306' }}
+          DB_CONNECT_TIMEOUT: ${{ vars.DB_CONNECT_TIMEOUT || '5' }}
+          # TLS flags (optional)
+          DB_SSL_DISABLED: ${{ vars.DB_SSL_DISABLED }}
+          DB_SSL_VERIFY: ${{ vars.DB_SSL_VERIFY }}
+          DB_SSL_CA: ${{ secrets.DB_SSL_CA }}
+        run: |
+          set -euo pipefail
+          settings=(
+            WEBSITES_PORT=$APP_PORT
+            CORS_ALLOW_ORIGINS="$CORS_ALLOW_ORIGINS"
+          )
+          # Conditionally include DB settings if present
+          [ -n "${DB_HOST}" ] && settings+=(DB_HOST=$DB_HOST)
+          [ -n "${DB_NAME}" ] && settings+=(DB_NAME=$DB_NAME)
+          [ -n "${DB_USER}" ] && settings+=(DB_USER=$DB_USER)
+          [ -n "${DB_PASSWORD}" ] && settings+=(DB_PASSWORD=$DB_PASSWORD)
+          [ -n "${DB_PORT}" ] && settings+=(DB_PORT=$DB_PORT)
+          [ -n "${DB_CONNECT_TIMEOUT}" ] && settings+=(DB_CONNECT_TIMEOUT=$DB_CONNECT_TIMEOUT)
+          # TLS flags
+          [ -n "${DB_SSL_DISABLED}" ] && settings+=(DB_SSL_DISABLED=$DB_SSL_DISABLED)
+          [ -n "${DB_SSL_VERIFY}" ] && settings+=(DB_SSL_VERIFY=$DB_SSL_VERIFY)
+          [ -n "${DB_SSL_CA}" ] && settings+=(DB_SSL_CA=$DB_SSL_CA)
+
+          echo "Applying app settings: ${settings[*]}" | sed 's/DB_PASSWORD=[^ ]\+/DB_PASSWORD=***hidden***/'
+          az webapp config appsettings set \
+            --name "$AZURE_WEBAPP_NAME" \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --settings ${settings[@]} >/dev/null
+
+      - name: Configure health check
+        run: |
+          az webapp config set \
+            --name "$AZURE_WEBAPP_NAME" \
+            --resource-group "$AZURE_RESOURCE_GROUP" \
+            --health-check-path /health
+
+      - name: Restart Web App
+        run: az webapp restart --name "$AZURE_WEBAPP_NAME" --resource-group "$AZURE_RESOURCE_GROUP"
 name: backend-container-deploy
 
 on:
