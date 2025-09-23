@@ -134,7 +134,31 @@ jobs:
           #   --docker-registry-server-user "${{ secrets.ACR_USERNAME }}" \
           #   --docker-registry-server-password "${{ secrets.ACR_PASSWORD }}"
 
-          # Restart to apply changes
+          # Do not restart yet; apply app settings first in the next step
+
+      - name: Apply backend app settings (DB + optional CORS)
+        env:
+          DB_HOST: ${{ secrets.DB_HOST }}
+          DB_NAME: ${{ secrets.DB_NAME }}
+          DB_USER: ${{ secrets.DB_USER }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
+          CORS_ALLOW_ORIGINS: ${{ secrets.CORS_ALLOW_ORIGINS }}
+        run: |
+          set -e
+          SETTINGS="WEBSITES_PORT=$APP_PORT"
+          if [ -n "$DB_HOST" ]; then SETTINGS="$SETTINGS DB_HOST=$DB_HOST"; fi
+          if [ -n "$DB_NAME" ]; then SETTINGS="$SETTINGS DB_NAME=$DB_NAME"; fi
+          if [ -n "$DB_USER" ]; then SETTINGS="$SETTINGS DB_USER=$DB_USER"; fi
+          if [ -n "$DB_PASSWORD" ]; then SETTINGS="$SETTINGS DB_PASSWORD=$DB_PASSWORD"; fi
+          if [ -n "$CORS_ALLOW_ORIGINS" ]; then SETTINGS="$SETTINGS CORS_ALLOW_ORIGINS=$CORS_ALLOW_ORIGINS"; fi
+
+          echo "Applying app settings: $SETTINGS"
+          az webapp config appsettings set \
+            --name "$WEBAPP_NAME" \
+            --resource-group "$RESOURCE_GROUP" \
+            --settings $SETTINGS
+
+          # Restart to apply image and settings
           az webapp restart --name "$WEBAPP_NAME" --resource-group "$RESOURCE_GROUP"
 
       - name: Show deployment URL

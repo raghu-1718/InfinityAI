@@ -23,8 +23,14 @@ class DatabaseManager:
     def __new__(cls) -> 'DatabaseManager':
         if cls._instance is None:
             cls._instance = super(DatabaseManager, cls).__new__(cls)
-            cls._instance._initialize_pool()
+            # Defer pool initialization until first use to avoid failing app startup
+            cls._instance._pool = None
         return cls._instance
+
+    def _ensure_pool_initialized(self) -> None:
+        """Initialize the pool on first use."""
+        if self._pool is None and not self._is_sqlite:
+            self._initialize_pool()
 
     def _initialize_pool(self, pool_size: int = 5) -> None:
         """Initialize the connection pool with retry logic."""
@@ -40,15 +46,27 @@ class DatabaseManager:
         for attempt in range(max_retries):
             try:
                 # Get connection parameters from environment variables
+                # SSL handling: Azure MySQL Flexible Server typically requires SSL
+                ssl_disabled_env = os.environ.get('DB_SSL_DISABLED', 'false').lower() == 'true'
+                ssl_verify_env = os.environ.get('DB_SSL_VERIFY', 'true').lower() == 'true'
+                ssl_ca_env = os.environ.get('DB_SSL_CA', '')
+
                 db_config = {
                     'host': os.environ.get('DB_HOST', 'infinityai-prod-db.mysql.database.azure.com'),
                     'user': os.environ.get('DB_USER', 'defaultuser'),
                     'password': os.environ.get('DB_PASSWORD', ''),
                     'database': os.environ.get('DB_NAME', 'infinityai'),
-                    'ssl_ca': os.environ.get('DB_SSL_CA', ''),
-                    'ssl_verify_cert': os.environ.get('DB_SSL_VERIFY', 'true').lower() == 'true',
-                    'ssl_disabled': True,  # Disable SSL to avoid certificate issues in container
                 }
+
+                # Apply SSL options
+                if ssl_disabled_env:
+                    db_config['ssl_disabled'] = True
+                else:
+                    # Enable SSL; allow skipping cert verification via env if needed
+                    db_config['ssl_disabled'] = False
+                    db_config['ssl_verify_cert'] = ssl_verify_env
+                    if ssl_ca_env:
+                        db_config['ssl_ca'] = ssl_ca_env
 
                 # Log sanitized connection info (no password)
                 safe_config = {k: v for k, v in db_config.items() if k != 'password'}
@@ -88,6 +106,7 @@ class DatabaseManager:
                 cursor.execute("SELECT 1")
                 cursor.fetchone()
                 return True
+            self._ensure_pool_initialized()
             with self.get_connection() as conn:
                 cursor = conn.cursor()
                 cursor.execute("SELECT 1")
@@ -104,6 +123,7 @@ class DatabaseManager:
             return
         conn = None
         try:
+            self._ensure_pool_initialized()
             conn = self._pool.get_connection()
             yield conn
         except Error as e:
@@ -121,6 +141,7 @@ class DatabaseManager:
             columns = [desc[0] for desc in cursor.description] if cursor.description else []
             rows = cursor.fetchall()
             return [dict(zip(columns, row)) for row in rows]
+        self._ensure_pool_initialized()
         with self.get_connection() as conn:
             cursor = conn.cursor(dictionary=True)
             cursor.execute(query, params or ())
@@ -133,6 +154,7 @@ class DatabaseManager:
             cursor.execute(query, params or ())
             self._sqlite_conn.commit()
             return cursor.rowcount
+        self._ensure_pool_initialized()
         with self.get_connection() as conn:
             cursor = conn.cursor()
             cursor.execute(query, params or ())
