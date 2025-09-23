@@ -119,16 +119,54 @@ def create_access_token(data: dict, expires_delta: Optional[timedelta] = None) -
     return encoded_jwt
 
 
+@app.get("/ready", tags=["Monitoring"])
+async def readiness() -> dict[str, str]:
+    """Simple readiness endpoint that does not touch external deps."""
+    return {"status": "ready", "service": "infinityai-backend-app"}
+
+
 @app.post("/login", tags=["Auth"])
 async def login(form_data: OAuth2PasswordRequestForm = Depends()) -> dict[str, str]:
     from core.usermanager import get_user_by_username
-    user = get_user_by_username(form_data.username)
+    user = None
+    try:
+        user = get_user_by_username(form_data.username)
+    except Exception as e:
+        # DB may be unavailable; allow optional admin fallback below
+        logger.warning(f"DB lookup failed in login: {e}")
 
-    if not user or not bcrypt.verify(form_data.password, user["hashed_password"]):
+    subject: Optional[str] = None
+    if user:
+        if not bcrypt.verify(form_data.password, user["hashed_password"]):
+            raise HTTPException(status_code=400, detail="Incorrect username or password")
+        subject = user["username"]
+    else:
+        allow_fallback = os.getenv("ALLOW_FALLBACK_LOGIN", "false").lower() == "true"
+        admin_user = os.getenv("ADMIN_USERNAME")
+        admin_hash = os.getenv("ADMIN_PASSWORD_HASH")
+        admin_plain = os.getenv("ADMIN_PASSWORD")
+        allow_plain = os.getenv("ADMIN_ALLOW_PLAINTEXT", "false").lower() == "true"
+
+        if allow_fallback and admin_user and form_data.username == admin_user:
+            verified = False
+            if admin_hash:
+                try:
+                    verified = bcrypt.verify(form_data.password, admin_hash)
+                except Exception:
+                    verified = False
+            elif allow_plain and admin_plain is not None:
+                verified = (form_data.password == admin_plain)
+
+            if not verified:
+                raise HTTPException(status_code=400, detail="Incorrect username or password")
+            subject = admin_user
+
+    if not subject:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
+
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
     access_token = create_access_token(
-        data={"sub": user["username"]}, expires_delta=access_token_expires
+        data={"sub": subject}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
 
