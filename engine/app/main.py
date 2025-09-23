@@ -24,7 +24,7 @@ app: FastAPI = FastAPI(
 
 # CORS configuration using env var CORS_ALLOW_ORIGINS (comma-separated)
 # Default allows both the frontend (www) and backend (api) subdomains in production.
-cors_origins_env = os.getenv("CORS_ALLOW_ORIGINS", "https://www.infinityai.pro,https://api.infinityai.pro")
+cors_origins_env = os.getenv("CORS_ALLOW_ORIGINS", "https://infinityai.pro,https://www.infinityai.pro,https://api.infinityai.pro")
 origins = [o.strip() for o in cors_origins_env.split(",") if o.strip()]
 
 app.add_middleware(
