@@ -6,6 +6,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import jwt
 from passlib.hash import bcrypt
 import os
+import threading
 
 # Import shared utilities
 from shared.utils.database import db
@@ -53,14 +54,27 @@ async def health_check() -> dict[str, str]:
     Returns status and basic diagnostics including database connectivity check.
     """
     try:
-        # Test database connectivity
-        db_status = "connected" if db.test_connection() else "disconnected"
+        # Perform DB check with a short timeout to avoid long probe waits
+        timeout_seconds = float(os.getenv("HEALTH_DB_TIMEOUT", "3"))
+        result = {"db": "unknown"}
 
-        # Log health check
-        logger.info("Health check performed successfully")
+        def _check_db() -> None:
+            try:
+                result["db"] = "connected" if db.test_connection() else "disconnected"
+            except Exception:
+                result["db"] = "error"
 
+        t = threading.Thread(target=_check_db, daemon=True)
+        t.start()
+        t.join(timeout_seconds)
+        db_status = result["db"] if not t.is_alive() else "timeout"
+
+        # Overall status degrades if DB is not connected, but endpoint remains fast
+        overall = "healthy" if db_status == "connected" else "degraded"
+
+        logger.info("Health check performed", extra={"custom_fields": {"database": db_status}})
         return {
-            "status": "healthy",
+            "status": overall,
             "database": db_status,
             "timestamp": datetime.now(timezone.utc).isoformat(),
             "version": "1.0.0",
