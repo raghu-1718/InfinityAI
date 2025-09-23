@@ -51,11 +51,15 @@ class DatabaseManager:
                 ssl_verify_env = os.environ.get('DB_SSL_VERIFY', 'true').lower() == 'true'
                 ssl_ca_env = os.environ.get('DB_SSL_CA', '')
 
+                # Optional connection timeout to keep health checks snappy
+                connect_timeout = int(os.environ.get('DB_CONNECT_TIMEOUT', '5'))
+
                 db_config = {
                     'host': os.environ.get('DB_HOST', 'infinityai-prod-db.mysql.database.azure.com'),
                     'user': os.environ.get('DB_USER', 'defaultuser'),
                     'password': os.environ.get('DB_PASSWORD', ''),
                     'database': os.environ.get('DB_NAME', 'infinityai'),
+                    'connection_timeout': connect_timeout,
                 }
 
                 # Apply SSL options
