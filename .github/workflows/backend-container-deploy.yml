@@ -105,6 +105,12 @@ jobs:
           DB_SSL_DISABLED: ${{ vars.DB_SSL_DISABLED }}
           DB_SSL_VERIFY: ${{ vars.DB_SSL_VERIFY }}
           DB_SSL_CA: ${{ secrets.DB_SSL_CA }}
+          # Optional fallback admin login (temporary access while DB is down)
+          ALLOW_FALLBACK_LOGIN: ${{ vars.ALLOW_FALLBACK_LOGIN }}
+          ADMIN_USERNAME: ${{ vars.ADMIN_USERNAME }}
+          ADMIN_PASSWORD_HASH: ${{ secrets.ADMIN_PASSWORD_HASH }}
+          ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          ADMIN_ALLOW_PLAINTEXT: ${{ vars.ADMIN_ALLOW_PLAINTEXT }}
         run: |
           set -euo pipefail
           settings=(
@@ -122,8 +128,14 @@ jobs:
           [ -n "${DB_SSL_DISABLED}" ] && settings+=(DB_SSL_DISABLED=$DB_SSL_DISABLED)
           [ -n "${DB_SSL_VERIFY}" ] && settings+=(DB_SSL_VERIFY=$DB_SSL_VERIFY)
           [ -n "${DB_SSL_CA}" ] && settings+=(DB_SSL_CA=$DB_SSL_CA)
+          # Fallback admin login
+          [ -n "${ALLOW_FALLBACK_LOGIN}" ] && settings+=(ALLOW_FALLBACK_LOGIN=$ALLOW_FALLBACK_LOGIN)
+          [ -n "${ADMIN_USERNAME}" ] && settings+=(ADMIN_USERNAME=$ADMIN_USERNAME)
+          [ -n "${ADMIN_PASSWORD_HASH}" ] && settings+=(ADMIN_PASSWORD_HASH=$ADMIN_PASSWORD_HASH)
+          [ -n "${ADMIN_PASSWORD}" ] && settings+=(ADMIN_PASSWORD=$ADMIN_PASSWORD)
+          [ -n "${ADMIN_ALLOW_PLAINTEXT}" ] && settings+=(ADMIN_ALLOW_PLAINTEXT=$ADMIN_ALLOW_PLAINTEXT)
 
-          echo "Applying app settings: ${settings[*]}" | sed 's/DB_PASSWORD=[^ ]\+/DB_PASSWORD=***hidden***/'
+          echo "Applying app settings: ${settings[*]}" | sed -E 's/(DB_PASSWORD|ADMIN_PASSWORD)=[^ ]+/\1=***hidden***/'
           az webapp config appsettings set \
             --name "$AZURE_WEBAPP_NAME" \
             --resource-group "$AZURE_RESOURCE_GROUP" \
