@@ -1,0 +1,16 @@
+[flake8]
+max-line-length = 100
+extend-ignore = E203,E266,E501
+exclude =
+    .git,
+    .venv,
+    node_modules,
+    **/vendor/*,
+    dist,
+    build,
+    alembic/versions,
+    infinityai_backup_*.sql,
+    __pycache__,
+    *.db
+per-file-ignores =
+    tests/*:E302,E305,E501

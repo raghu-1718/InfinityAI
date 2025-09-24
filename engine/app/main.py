@@ -46,6 +46,11 @@ async def root() -> dict[str, str]:
 #
 # Health check endpoint for Container App probe
 #
+<<<<<<< Updated upstream
+=======
+# Health check endpoint for Container App probe
+
+>>>>>>> Stashed changes
 
 @app.get("/health", tags=["Monitoring"])
 async def health_check() -> dict[str, str]:
